@@ -4,6 +4,9 @@ const restController = {
   getRestaurants: (req, res) => {
     return Restaurant.findAll({ raw: true }).then(restaurants => res.render('admin/restaurants', { restaurants }))
   },
+  getRestaurant: (req, res) => {
+    return Restaurant.findByPk(req.params.id, { raw: true }).then(restaurant => res.render('admin/restaurant', { restaurant }))
+  },
   createRestaurant: (req, res) => {
     return res.render('admin/create')
   },
@@ -18,7 +21,8 @@ const restController = {
         res.redirect('/admin/restaurants')
       })
       .catch(error => console.log(error))
-  }
+  },
+
 }
 
 module.exports = restController
