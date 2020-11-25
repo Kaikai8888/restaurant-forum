@@ -27,6 +27,16 @@ let userController = {
         })
         .catch(error => console.log(error))
     }
+  },
+  signInPage: (req, res) => res.render('signin'),
+  signIn: (req, res) => {
+    req.flash('success_message', '成功登入')
+    res.redirect('/restaurants')
+  },
+  logout: (req, res) => {
+    req.logout()
+    req.flash('success_message', '成功登出!')
+    res.redirect('/signin')
   }
 }
 
