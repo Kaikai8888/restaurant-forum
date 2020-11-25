@@ -39,6 +39,12 @@ const restController = {
         res.redirect('/admin/restaurants')
       }))
       .catch(error => console.log(error))
+  },
+  deleteRestaurant: (req, res) => {
+    return Restaurant.findByPk(req.params.id)
+      .then(restaurant => restaurant.destroy())
+      .then((restaurant) => res.redirect('/admin/restaurants'))
+      .catch(error => console.log(error))
   }
 
 }
