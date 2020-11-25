@@ -1,5 +1,7 @@
 const db = require('../models')
 const Restaurant = db.Restaurant
+const fs = require('fs')
+
 const restController = {
   getRestaurants: (req, res) => {
     return Restaurant.findAll({ raw: true }).then(restaurants => res.render('admin/restaurants', { restaurants }))
@@ -17,12 +19,36 @@ const restController = {
       req.flash('error_messages', '請填寫餐廳名稱')
       return res.redirect('back')
     }
-    Restaurant.create({ ...req.body })
-      .then(() => {
-        req.flash('success_messages', '已成功新增餐廳')
-        res.redirect('/admin/restaurants')
+
+    const { file, name, tel, address, opening_hours, description } = req
+    if (file) {
+      fs.readFile(file.path, (err, data) => {
+        if (err) return console.log('Error:', err)
+        fs.writeFile(`upload/${file.originalname}`, data,
+          () => Restaurant.create({
+            name, tel, address, opening_hours, description,
+            image: file ? `/upload/${file.originalname}` : null
+          })
+            .then(() => {
+              req.flash('success_messages', '已成功新增餐廳')
+              res.redirect('/admin/restaurants')
+            })
+            .catch(error => console.log(error))
+        )
       })
-      .catch(error => console.log(error))
+    } else {
+      return Restaurant.create({
+        name, tel, address, opening_hours, description,
+        image: null
+      })
+        .then(() => {
+          req.flash('success_messages', '已成功新增餐廳')
+          res.redirect('/admin/restaurants')
+        })
+        .catch(error => console.log(error))
+    }
+
+
   },
   editRestaurant: (req, res) => {
     return Restaurant.findByPk(req.params.id, { raw: true })
@@ -34,13 +60,36 @@ const restController = {
       req.flash('error_messages', '請填寫餐廳名稱')
       return res.redirect('back')
     }
-    Restaurant.findByPk(req.params.id)
-      .then(restaurant => restaurant.update({ ...req.body }))
-      .then((restaurant => {
-        req.flash('success_messages', '已成功更新餐廳資訊')
-        res.redirect('/admin/restaurants')
-      }))
-      .catch(error => console.log(error))
+    const { file, name, tel, address, opening_hours, description } = req
+    if (file) {
+      fs.readFile(file.path, (err, data) => {
+        if (err) return console.log('Error:', err)
+        fs.writeFile(`upload/${file.originalname}`, data,
+          () => {
+            return Restaurant.findByPk(req.params.id)
+              .then(restaurant => restaurant.update({
+                name, tel, address, opening_hours, description,
+                image: file ? `/upload/${file.originalname}` : restaurant.image
+              }))
+              .then(() => {
+                req.flash('success_messages', '已成功新增餐廳')
+                res.redirect('/admin/restaurants')
+              })
+              .catch(error => console.log(error))
+          })
+      })
+    } else {
+      return Restaurant.findByPk(req.params.id)
+        .then(restaurant => restaurant.update({
+          name, tel, address, opening_hours, description,
+          image: restaurant.image
+        }))
+        .then((restaurant => {
+          req.flash('success_messages', '已成功更新餐廳資訊')
+          res.redirect('/admin/restaurants')
+        }))
+        .catch(error => console.log(error))
+    }
   },
   deleteRestaurant: (req, res) => {
     return Restaurant.findByPk(req.params.id)

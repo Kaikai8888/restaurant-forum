@@ -12,6 +12,7 @@ app.engine('hbs', handlebars({ defaultLayout: 'main', extname: 'hbs' }))
 app.set('view engine', 'hbs')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
+app.use('/upload', express.static(__dirname + '/upload'))
 app.use(session({
   secret: 'fejwiovnur',
   resave: false,
