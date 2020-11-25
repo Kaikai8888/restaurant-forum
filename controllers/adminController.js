@@ -5,9 +5,11 @@ const restController = {
     return Restaurant.findAll({ raw: true }).then(restaurants => res.render('admin/restaurants', { restaurants }))
   },
   getRestaurant: (req, res) => {
+    console.log('@@show')
     return Restaurant.findByPk(req.params.id, { raw: true }).then(restaurant => res.render('admin/restaurant', { restaurant }))
   },
   createRestaurant: (req, res) => {
+    console.log('@@create')
     return res.render('admin/create')
   },
   postRestaurant: (req, res) => {
