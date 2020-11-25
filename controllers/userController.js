@@ -4,7 +4,7 @@ const User = db.User
 
 let userController = {
   signUpPage: (req, res) => res.render('signup'),
-  signUp: (req, res) => {
+  signUp: (req, res, next) => {
     if (req.body.password !== req.body.passwordCheck) {
       req.flash('error_messages', '兩次密碼輸入不同!')
       return res.redirect('/signup')
@@ -21,7 +21,7 @@ let userController = {
               password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null)
             }).then(() => {
               req.flash('success_messages', '成功註冊帳號！')
-              return res.redirect('/signin')
+              return next()
             })
           }
         })
