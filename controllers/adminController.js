@@ -1,17 +1,17 @@
 const db = require('../models')
 const Restaurant = db.Restaurant
 const fs = require('fs')
+const imgur = require('imgur-node-api')
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
 const restController = {
   getRestaurants: (req, res) => {
     return Restaurant.findAll({ raw: true }).then(restaurants => res.render('admin/restaurants', { restaurants }))
   },
   getRestaurant: (req, res) => {
-    console.log('@@show')
     return Restaurant.findByPk(req.params.id, { raw: true }).then(restaurant => res.render('admin/restaurant', { restaurant }))
   },
   createRestaurant: (req, res) => {
-    console.log('@@create')
     return res.render('admin/create')
   },
   postRestaurant: (req, res) => {
@@ -19,22 +19,21 @@ const restController = {
       req.flash('error_messages', '請填寫餐廳名稱')
       return res.redirect('back')
     }
-
-    const { file, name, tel, address, opening_hours, description } = req
+    const { file } = req
+    const { name, tel, address, opening_hours, description } = req.body
     if (file) {
-      fs.readFile(file.path, (err, data) => {
+      imgur.setClientID(IMGUR_CLIENT_ID)
+      imgur.upload(file.path, (err, img) => {
         if (err) return console.log('Error:', err)
-        fs.writeFile(`upload/${file.originalname}`, data,
-          () => Restaurant.create({
-            name, tel, address, opening_hours, description,
-            image: file ? `/upload/${file.originalname}` : null
+        return Restaurant.create({
+          name, tel, address, opening_hours, description,
+          image: file ? img.data.link : null
+        })
+          .then(() => {
+            req.flash('success_messages', '已成功新增餐廳')
+            res.redirect('/admin/restaurants')
           })
-            .then(() => {
-              req.flash('success_messages', '已成功新增餐廳')
-              res.redirect('/admin/restaurants')
-            })
-            .catch(error => console.log(error))
-        )
+          .catch(error => console.log(error))
       })
     } else {
       return Restaurant.create({
@@ -60,23 +59,22 @@ const restController = {
       req.flash('error_messages', '請填寫餐廳名稱')
       return res.redirect('back')
     }
-    const { file, name, tel, address, opening_hours, description } = req
+    const { file } = req
+    const { name, tel, address, opening_hours, description } = req.body
     if (file) {
-      fs.readFile(file.path, (err, data) => {
+      imgur.setClientID(IMGUR_CLIENT_ID)
+      imgur.upload(file.path, (err, img) => {
         if (err) return console.log('Error:', err)
-        fs.writeFile(`upload/${file.originalname}`, data,
-          () => {
-            return Restaurant.findByPk(req.params.id)
-              .then(restaurant => restaurant.update({
-                name, tel, address, opening_hours, description,
-                image: file ? `/upload/${file.originalname}` : restaurant.image
-              }))
-              .then(() => {
-                req.flash('success_messages', '已成功新增餐廳')
-                res.redirect('/admin/restaurants')
-              })
-              .catch(error => console.log(error))
+        return Restaurant.findByPk(req.params.id)
+          .then(restaurant => restaurant.update({
+            name, tel, address, opening_hours, description,
+            image: file ? img.data.link : null
+          }))
+          .then(() => {
+            req.flash('success_messages', '已成功編輯餐廳資訊')
+            res.redirect('/admin/restaurants')
           })
+          .catch(error => console.log(error))
       })
     } else {
       return Restaurant.findByPk(req.params.id)
