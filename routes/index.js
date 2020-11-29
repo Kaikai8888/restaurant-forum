@@ -3,10 +3,11 @@ const adminController = require('../controllers/adminController.js')
 const userController = require('../controllers/userController.js')
 const multer = require('multer')
 const upload = multer({ dest: 'temp/' })
+const helpers = require('../_helpers.js')
 
 module.exports = (app, passport) => {
   const authenticated = (req, res, next) => {
-    if (req.isAuthenticated()) {
+    if (helpers.ensureAuthenticated()) {
       return next()
     }
     req.flash('error_messages', '請先登入')
@@ -14,8 +15,8 @@ module.exports = (app, passport) => {
   }
 
   const authenticatedAdmin = (req, res, next) => {
-    if (req.isAuthenticated()) {
-      if (req.user.isAdmin) return next()
+    if (helpers.ensureAuthenticated()) {
+      if (helpers.getUser(req).isAdmin) return next()
       return res.redirect('/')
     }
     req.flash('error_messages', '請先登入')
