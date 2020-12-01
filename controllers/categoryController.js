@@ -14,6 +14,23 @@ const categoryController = {
         .then(() => res.redirect('/admin/categories'))
     }
     return res.redirect('/admin/categories')
+  },
+  editCategory: (req, res) => {
+    return Category.findAll({ raw: true })
+      .then(categories => res.render('admin/categories', {
+        categories,
+        category: categories.find(category => category.id === parseInt(req.params.id, 10))
+      }))
+      .catch(error => console.log(error))
+  },
+  putCategory: (req, res) => {
+    return Category.findByPk(req.params.id)
+      .then(category => {
+        if (!category) return
+        return category.update({ name: req.body.name })
+      })
+      .then(() => res.redirect('/admin/categories'))
+      .catch(error => console.log(error))
   }
 }
 
