@@ -1,27 +1,49 @@
 const db = require('../models')
 const Restaurant = db.Restaurant
 const Category = db.Category
+const PAGE_LIMIT = 10
+
 const restController = {
   getRestaurants: (req, res) => {
     const whereQuery = {}
-    let categoryId = req.query.categoryId || ''
-    categoryId = parseInt(categoryId, 10) || ''
+    let { categoryId, curPage } = req.query
+    let offset = 0
+    categoryId = Number(categoryId) || ''
+    curPage = Number(curPage) || 1
+
+    if (curPage) {
+      offset = (curPage - 1) * PAGE_LIMIT
+    }
+
     if (categoryId) {
       whereQuery.CategoryId = categoryId
     }
+
     return Promise.all([
       Category.findAll({ raw: true }),
-      Restaurant.findAll({
+      Restaurant.findAndCountAll({
         raw: true,
         nest: true,
         include: [Category],
-        where: whereQuery
+        where: whereQuery,
+        limit: PAGE_LIMIT,
+        offset
       })
     ])
       .then(results => {
-        const [categories, restaurants] = results
-        restaurants.forEach(r => r.description = r.description.substring(0, 50))
-        return res.render('restaurants', { restaurants, categories, categoryId })
+        let [categories, restaurants] = results
+        const totalPages = Math.ceil(restaurants.count / PAGE_LIMIT)
+        const pages = Array.from({ length: totalPages }).map((_, i) => i + 1)
+        const pre = curPage - 1 || 1
+        const next = curPage + 1 > totalPages ? totalPages : curPage + 1
+
+        restaurants.rows.forEach(r => r.description = r.description.substring(0, 50))
+
+        return res.render('restaurants', {
+          restaurants: restaurants.rows,
+          pages, curPage, pre, next,
+          categories, categoryId
+        })
       })
       .catch(error => console.log(error))
   },
@@ -37,3 +59,5 @@ const restController = {
 }
 
 module.exports = restController
+
+

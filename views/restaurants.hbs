@@ -31,3 +31,26 @@
 </div>
 <br />
 <br />
+<div class="row">
+  <nav aria-label="Page navigation">
+    <ul class="pagination">
+      <li class="page-item">
+        <a class="page-link" href="/restaurants?curPage={{pre}}&categoryId={{../categoryId}}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>
+      {{#each pages}}
+      <li class="page-item {{#ifCond this ../curPage}}active{{/ifCond}}">
+        <a class="page-link " href="/restaurants?curPage={{this}}&categoryId={{../categoryId}}">{{this}}</a>
+      </li>
+      {{/each}}
+      <li class="page-item">
+        <a class="page-link" href="/restaurants?curPage={{next}}&categoryId={{../categoryId}}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
