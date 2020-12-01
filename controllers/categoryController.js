@@ -20,7 +20,6 @@ const categoryController = {
     if (req.params.id) {
       return Category.findAll({ raw: true })
         .then(categories => {
-
           res.render('admin/categories', {
             categories,
             category: categories.find(category => category.id === parseInt(req.params.id, 10))
@@ -32,6 +31,11 @@ const categoryController = {
     }
   },
   putCategory: (req, res) => {
+    const name = req.body.name || ''
+    if (!name.trim()) {
+      req.flash('error_messages', 'name didn\'t exit')
+      return res.redirect('back')
+    }
     return Category.findByPk(req.params.id)
       .then(category => {
         if (!category) return

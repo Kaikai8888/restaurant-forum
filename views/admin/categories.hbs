@@ -8,7 +8,7 @@
 <div class="d-flex align-items-center p-3 my-3 text-white-50 bg-purple rounded shadow-sm">
   {{#if category}}
   <form action="/admin/categories/{{category.id}}?_method=PUT" method="POST">
-    <input type="text" placeholder="Name" name="name" required value="{{category.name}}">
+    <input type="text" placeholder="Name" name="name" value="{{category.name}}">
     <button type="submit" class="btn btn-primary">Update</button>
     <button class="btn btn-link">
       <a href="/admin/categories">or Create New</a>
