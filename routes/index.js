@@ -26,7 +26,7 @@ module.exports = (app, passport) => {
   app.get('/', authenticated, (req, res) => res.redirect('/restaurants'))
   app.get('/restaurants', authenticated, restController.getRestaurants)
 
-  //admin related
+  //admin/restaurants
   app.get('/admin', authenticated, (req, res) => res.redirect('/admin/restaurants'))
   app.get('/admin/restaurants', authenticatedAdmin, adminController.getRestaurants)
   app.get('/admin/restaurants/create', authenticatedAdmin, adminController.createRestaurant)
@@ -38,6 +38,8 @@ module.exports = (app, passport) => {
   //admin users
   app.get('/admin/users', authenticatedAdmin, adminController.getUsers)
   app.put('/admin/users/:id/toggleAdmin', authenticatedAdmin, adminController.putUsers)
+  //admin/categories
+  app.get('/admin/categories', authenticatedAdmin, adminController.getCategories)
 
   // signup, signin, logout
   app.get('/signup', userController.signUpPage)

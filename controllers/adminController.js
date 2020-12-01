@@ -120,6 +120,11 @@ const restController = {
       })
       .then(() => res.redirect('/admin/users'))
       .catch(error => console.log(error))
+  },
+  getCategories: (req, res) => {
+    return Category.findAll({ raw: true })
+      .then(categories => res.render('admin/categories', { categories }))
+      .catch(error => console.log(error))
   }
 
 }
