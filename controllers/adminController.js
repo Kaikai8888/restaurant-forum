@@ -109,7 +109,7 @@ const restController = {
         }
         console.log(user.isAdmin)
         req.flash('success_messages', 'user was successfully updated')
-        return user.update({ isAdmin: user.isAdmin ? false : true })
+        return user.update({ isAdmin: !user.isAdmin })
       })
       .then(() => res.redirect('/admin/users'))
       .catch(error => console.log(error))
