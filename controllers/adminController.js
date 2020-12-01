@@ -8,14 +8,15 @@ const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
 const restController = {
   getRestaurants: (req, res) => {
-    return Restaurant.findAll({ include: [Category], raw: true, nest: true }).then(restaurants => res.render('admin/restaurants', { restaurants }))
+    return Restaurant.findAll({ include: [Category], raw: true, nest: true })
+      .then(restaurants => res.render('admin/restaurants', { restaurants }))
   },
   getRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, { include: [Category], raw: true, nest: true }).then(restaurant =>
-      res.render('admin/restaurant', { restaurant }))
+    return Restaurant.findByPk(req.params.id, { include: [Category], raw: true, nest: true })
+      .then(restaurant => res.render('admin/restaurant', { restaurant }))
   },
   createRestaurant: (req, res) => {
-    return res.render('admin/create')
+    return Category.findAll({ raw: true }).then(categories => res.render('admin/create', { categories }))
   },
   postRestaurant: (req, res) => {
     if (!req.body.name) {
@@ -23,13 +24,13 @@ const restController = {
       return res.redirect('back')
     }
     const { file } = req
-    const { name, tel, address, opening_hours, description } = req.body
+    const { name, tel, address, opening_hours, description, CategoryId } = req.body
     if (file) {
       imgur.setClientID(IMGUR_CLIENT_ID)
       imgur.upload(file.path, (err, img) => {
         if (err) return console.log('Error:', err)
         return Restaurant.create({
-          name, tel, address, opening_hours, description,
+          name, tel, address, opening_hours, description, CategoryId,
           image: file ? img.data.link : null
         })
           .then(() => {
