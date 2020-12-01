@@ -3,10 +3,25 @@ const Restaurant = db.Restaurant
 const Category = db.Category
 const restController = {
   getRestaurants: (req, res) => {
-    return Restaurant.findAll({ raw: true, nest: true, include: [Category] })
-      .then(restaurants => {
+    const whereQuery = {}
+    let categoryId = req.query.categoryId || ''
+    categoryId = parseInt(categoryId, 10) || ''
+    if (categoryId) {
+      whereQuery.CategoryId = categoryId
+    }
+    return Promise.all([
+      Category.findAll({ raw: true }),
+      Restaurant.findAll({
+        raw: true,
+        nest: true,
+        include: [Category],
+        where: whereQuery
+      })
+    ])
+      .then(results => {
+        const [categories, restaurants] = results
         restaurants.forEach(r => r.description = r.description.substring(0, 50))
-        return res.render('restaurants', { restaurants })
+        return res.render('restaurants', { restaurants, categories, categoryId })
       })
       .catch(error => console.log(error))
   },

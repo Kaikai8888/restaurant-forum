@@ -1,3 +1,16 @@
+<div class="row my-4">
+  <ul class="nav nav-pills">
+    <li class="nav-items">
+      <a href="/restaurants" class="nav-link {{#ifCond '' categoryId}}active{{/ifCond}}">全部</a>
+    </li>
+    {{#each categories}}
+    <li class="nav-items">
+      <a href="/restaurants?categoryId={{this.id}}"
+        class="nav-link {{#ifCond this.id ../categoryId}}active{{/ifCond}}">{{this.name}}</a>
+    </li>
+    {{/each}}
+  </ul>
+</div>
 <div class="row">
   {{#each restaurants}}
   <div class="col-md-4">
