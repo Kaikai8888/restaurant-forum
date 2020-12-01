@@ -17,12 +17,19 @@ const categoryController = {
     return res.redirect('/admin/categories')
   },
   editCategory: (req, res) => {
-    return Category.findAll({ raw: true })
-      .then(categories => res.render('admin/categories', {
-        categories,
-        category: categories.find(category => category.id === parseInt(req.params.id, 10))
-      }))
-      .catch(error => console.log(error))
+    if (req.params.id) {
+      return Category.findAll({ raw: true })
+        .then(categories => {
+
+          res.render('admin/categories', {
+            categories,
+            category: categories.find(category => category.id === parseInt(req.params.id, 10))
+          })
+        })
+        .catch(error => console.log(error))
+    } else {
+      return res.redirect('/admin/categories')
+    }
   },
   putCategory: (req, res) => {
     return Category.findByPk(req.params.id)
