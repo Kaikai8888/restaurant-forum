@@ -7,11 +7,14 @@ const methodOverride = require('method-override')
 if (process.env.NOED_ENV !== 'production') {
   require('dotenv').config()
 }
+const helpers = require('./config/handlebars-helpers.js')
 const passport = require('./config/passport.js')
 const app = express()
 const port = process.env.PORT || 3000
 
-app.engine('hbs', handlebars({ defaultLayout: 'main', extname: 'hbs' }))
+app.engine('hbs', handlebars({
+  defaultLayout: 'main', extname: 'hbs', helpers
+}))
 app.set('view engine', 'hbs')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))

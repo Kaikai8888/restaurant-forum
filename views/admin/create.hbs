@@ -13,7 +13,9 @@
       <label for="CategoryId">Category</label>
       <select class="form-control" id="CategoryId" name="CategoryId">
         {{#each categories}}
-        <option value="{{this.id}}">{{this.name}}</option>
+        <option value="{{this.id}}" {{#ifCond ../restaurant.CategoryId this.id}}selected{{/ifCond}}>
+          {{this.name}}
+        </option>
         {{/each}}
       </select>
     </div>

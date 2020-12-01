@@ -41,7 +41,7 @@ const restController = {
       })
     } else {
       return Restaurant.create({
-        name, tel, address, opening_hours, description,
+        name, tel, address, opening_hours, description, CategoryId,
         image: null
       })
         .then(() => {
@@ -54,9 +54,13 @@ const restController = {
 
   },
   editRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, { raw: true })
-      .then(restaurant => res.render('admin/create', { restaurant }))
+    return Promise.all([
+      Category.findAll({ raw: true }),
+      Restaurant.findByPk(req.params.id, { raw: true })
+    ])
+      .then(results => res.render('admin/create', { categories: results[0], restaurant: results[1] }))
       .catch(error => console.log(error))
+
   },
   putRestaurant: (req, res) => {
     if (!req.body.name) {
@@ -64,14 +68,14 @@ const restController = {
       return res.redirect('back')
     }
     const { file } = req
-    const { name, tel, address, opening_hours, description } = req.body
+    const { name, tel, address, opening_hours, description, CategoryId } = req.body
     if (file) {
       imgur.setClientID(IMGUR_CLIENT_ID)
       imgur.upload(file.path, (err, img) => {
         if (err) return console.log('Error:', err)
         return Restaurant.findByPk(req.params.id)
           .then(restaurant => restaurant.update({
-            name, tel, address, opening_hours, description,
+            name, tel, address, opening_hours, description, CategoryId,
             image: file ? img.data.link : null
           }))
           .then(() => {
@@ -83,7 +87,7 @@ const restController = {
     } else {
       return Restaurant.findByPk(req.params.id)
         .then(restaurant => restaurant.update({
-          name, tel, address, opening_hours, description,
+          name, tel, address, opening_hours, description, CategoryId,
           image: restaurant.image
         }))
         .then((restaurant => {
