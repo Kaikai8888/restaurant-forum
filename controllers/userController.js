@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs')
 const { User } = require('../models')
 const { manageError } = require('../_helpers.js')
+const helpers = require('../_helpers.js')
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
@@ -61,7 +62,7 @@ let userController = {
   },
   editUser: async (req, res) => {
     try {
-      if (req.user.id !== Number(req.params.id)) return res.redirect('back')
+      if (helpers.getUser(req).id !== Number(req.params.id)) return res.redirect('back')
       const userProfile = await User.findByPk(req.params.id, { raw: true })
       if (!userProfile) return res.redirect('back')
       return res.render('editUser', { userProfile })
@@ -79,7 +80,7 @@ let userController = {
         return res.redirect('back')
       }
       //check id
-      if (!Number(id) || req.user.id !== Number(id)) return res.redirect('back')
+      if (!Number(id) || helpers.getUser(req).id !== Number(id)) return res.redirect('back')
       const userProfile = await User.findByPk(id)
       if (!userProfile) return res.redirect('back')
       //update user profile
