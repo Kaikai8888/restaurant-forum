@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
-const { User } = require('../models')
+const { User, Comment, Restaurant, sequelize } = require('../models')
+const QueryTypes = sequelize.QueryTypes
 const { manageError } = require('../_helpers.js')
 const helpers = require('../_helpers.js')
 const imgur = require('imgur-node-api')
@@ -53,17 +54,31 @@ let userController = {
   },
   getUser: async (req, res) => {
     try {
-      const userProfile = await User.findByPk(req.params.id)
+      const userProfile = await sequelize.query(
+        `SELECT u.*, Count(c.id) as "comments" 
+        FROM users AS u 
+        LEFT JOIN comments AS c ON u.id = c.UserId 
+        WHERE u.id = "${req.params.id}"`,
+        { type: QueryTypes.SELECT })
+      const restaurants = await sequelize.query(
+        `SELECT r.id, r.image 
+        FROM users AS u
+        JOIN comments As c ON u.id = c.UserId 
+        JOIN restaurants As r ON r.id = c.RestaurantId 
+        WHERE u.id = "${req.params.id}"
+        GROUP BY r.id`,
+        { type: QueryTypes.SELECT })
       if (!userProfile) return res.redirect('back')
-      return res.render('user', { userProfile: userProfile.toJSON() })
+      return res.render('user', { userProfile: userProfile[0], restaurants, restCount: restaurants.length })
     } catch (error) {
       manageError(error, req, res)
     }
   },
   editUser: async (req, res) => {
     try {
-      if (helpers.getUser(req).id !== Number(req.params.id)) return res.redirect('back')
-      const userProfile = await User.findByPk(req.params.id, { raw: true })
+      const id = req.params.id
+      if (!Number(id) || helpers.getUser(req).id !== Number(id)) return res.redirect('back')
+      const userProfile = await User.findByPk(id, { raw: true })
       if (!userProfile) return res.redirect('back')
       return res.render('editUser', { userProfile })
     } catch (error) {
