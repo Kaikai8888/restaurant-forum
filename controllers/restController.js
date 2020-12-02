@@ -81,7 +81,21 @@ const restController = {
         comments: results[1]
       }))
       .catch(error => console.log(error))
+  },
+  getDashboard: (req, res) => {
+    Restaurant.findByPk(req.params.id, {
+      include: [
+        Category,
+        { model: Comment, include: User }
+      ]
+    }).then(restaurant => {
+      if (!restaurant) return res.redirect('back')
+      restaurant = restaurant.toJSON()
+      return res.render('dashboard', { restaurant, comments: restaurant.Comments.length })
+    })
+      .catch(error => console.log(error))
   }
+
 }
 
 module.exports = restController
