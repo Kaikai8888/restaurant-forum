@@ -9,7 +9,7 @@ const restController = {
       .then(restaurants => res.render('admin/restaurants', { restaurants }))
   },
   getRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, { include: [Category, { model: Comment, include: User }] })
+    return Restaurant.findByPk(req.params.id, { include: [Category] })
       .then(restaurant => {
         if (!restaurant) return res.redirect('back')
         return res.render('admin/restaurant', { restaurant: restaurant.toJSON() })

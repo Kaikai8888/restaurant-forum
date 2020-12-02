@@ -19,6 +19,15 @@ module.exports = {
       .catch(error => console.log(error))
   },
   deleteComment: (req, res) => {
-
+    Comment.findByPk(req.params.id)
+      .then(comment => {
+        if (!comment) return res.redirect('back')
+        return comment.destroy()
+          .then(() => {
+            req.flash('success_messages', 'Successfully delete comment.')
+            return res.redirect('back')
+          })
+      })
+      .catch(error => console.log(error))
   }
 }
