@@ -1,7 +1,4 @@
-const db = require('../models')
-const Restaurant = db.Restaurant
-const User = db.User
-const Category = db.Category
+const { Restaurant, User, Category, Comment } = require('../models')
 const fs = require('fs')
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
@@ -12,8 +9,11 @@ const restController = {
       .then(restaurants => res.render('admin/restaurants', { restaurants }))
   },
   getRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, { include: [Category], raw: true, nest: true })
-      .then(restaurant => res.render('admin/restaurant', { restaurant }))
+    return Restaurant.findByPk(req.params.id, { include: [Category, { model: Comment, include: User }] })
+      .then(restaurant => {
+        if (!restaurant) return res.redirect('back')
+        return res.render('admin/restaurant', { restaurant: restaurant.toJSON() })
+      })
   },
   createRestaurant: (req, res) => {
     return Category.findAll({ raw: true }).then(categories => res.render('admin/create', { categories }))

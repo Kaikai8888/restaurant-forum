@@ -21,6 +21,29 @@
   </div>
   <hr>
 </div>
+<div class="col-md-12">
+  <h3>所有評論：</h3>
+  {{#each restaurant.Comments}}
+  <blockquote class="blockquote mb-0">
+    <div class="row align-items-center">
+      <div class="col-11">
+        <h4><a href="/users/{{this.UserId}}">{{this.User.name}}</a></h4>
+        <p>{{this.text}}</p>
+        <footer class="blockquote-footer">{{moment this.createdAt}}</footer>
+      </div>
+      <div class="col-md-1">
+        <form action="/admin/comments/{{this.id}}?_method=DELETE" method="POST" style="display: inline;">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+
+    </div>
+  </blockquote>
+  <hr />
+  {{/each}}
+  <br />
+  <br />
+</div>
 
 <hr>
 

@@ -17,5 +17,8 @@ module.exports = {
         return res.redirect('back')
       })
       .catch(error => console.log(error))
+  },
+  deleteComment: (req, res) => {
+
   }
 }
