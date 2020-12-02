@@ -1,0 +1,14 @@
+<div class="card mb-3" style="max-width: 540px;">
+  <div class="row no-gutters">
+    <div class="col-md-4 d-flex align-items-center">
+      <img src="{{userProfile.image}}" class="card-img" alt="User Avatar">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title">{{userProfile.name}}</h5>
+        <p class="card-text">{{userProfile.email}}</p>
+        <a href="/users/{{userProfile.id}}/edit" class="btn btn-primary">Edit</a>
+      </div>
+    </div>
+  </div>
+</div>
