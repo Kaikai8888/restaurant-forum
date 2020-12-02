@@ -16,9 +16,26 @@
   <div class="col-md-8">
     <p>{{restaurant.description}}</p>
   </div>
-  <hr>
-  <br>
-  <br>
+  <div class="col-md-12">
+    <hr />
+    <br />
+    <br />
+  </div>
+  <div class="col-md-12">
+    <h3>所有評論：</h3>
+    {{#each restaurant.Comments}}
+    <blockquote class="blockquote mb-0">
+      <h4><a href="/users/{{this.UserId}}">{{this.User.name}}</a></h4>
+      <p>{{this.text}}</p>
+      <footer class="blockquote-footer">{{moment this.createdAt}}</footer>
+    </blockquote>
+    <hr />
+    {{/each}}
+    <br />
+    <br />
+  </div>
+
+
   <div class="col-md-12">
     <form action="/comments?restaurantId={{restaurant.id}}" method="POST">
       <label for="text">留下評論：</label>
