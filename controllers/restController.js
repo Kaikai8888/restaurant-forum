@@ -1,4 +1,5 @@
 const { Restaurant, Category, User, Comment } = require('../models')
+const { manageError, testConsoleLog } = require('../_helpers.js')
 const PAGE_LIMIT = 10
 
 const restController = {
@@ -45,19 +46,23 @@ const restController = {
       })
       .catch(error => console.log(error))
   },
-  getRestaurant: (req, res) => {
-    if (!req.params.id) return res.redirect('back')
-    return Restaurant.findByPk(req.params.id, {
-      include: [
-        Category,
-        { model: Comment, include: [User] }
-      ]
-    })
-      .then(restaurant => {
-        if (!restaurant) return res.redirect('back')
-        return res.render('restaurant', { restaurant: restaurant.toJSON() })
+  getRestaurant: async (req, res) => {
+    try {
+      if (!req.params.id) return res.redirect('back')
+      const restaurant = await Restaurant.findByPk(req.params.id, {
+        include: [
+          Category,
+          { model: Comment, include: [User] }
+        ]
       })
-      .catch(error => console.log(error))
+      if (!restaurant) return res.redirect('back')
+      testConsoleLog('Before increment viewCounts', restaurant.toJSON().viewCounts)
+      await restaurant.increment('viewCounts')
+      testConsoleLog('After increment viewCounts', restaurant.toJSON().viewCounts)
+      return res.render('restaurant', { restaurant: restaurant.toJSON() })
+    } catch (error) {
+      console.log(error)
+    }
   },
   getFeeds: (req, res) => {
     Promise.all([
@@ -93,7 +98,7 @@ const restController = {
       restaurant = restaurant.toJSON()
       return res.render('dashboard', { restaurant, comments: restaurant.Comments.length })
     })
-      .catch(error => console.log(error))
+      .catch(error => manageError(error, req, res))
   }
 
 }
