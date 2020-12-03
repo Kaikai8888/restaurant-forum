@@ -98,7 +98,7 @@ let userController = {
       } else {
         await userProfile.update({ name })
       }
-      return res.redirect(`/users/${id}}`)
+      return res.redirect(`/users/${id}`)
     } catch (error) {
       manageError(error, req, res)
     }
