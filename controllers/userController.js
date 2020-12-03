@@ -104,9 +104,7 @@ let userController = {
     }
   },
   addFavorite: (req, res) => {
-    console.log('in add favorite')
     return Favorite.create({ RestaurantId: req.params.restaurantId, UserId: helpers.getUser(req).id })
-      .then(favorite => console.log(favorite))
       .then(() => res.redirect('back'))
       .catch(error => console.log(error))
   },

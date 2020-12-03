@@ -1,5 +1,6 @@
 const { Restaurant, Category, User, Comment } = require('../models')
 const { manageError, testConsoleLog } = require('../_helpers.js')
+const helpers = require('../_helpers.js')
 const PAGE_LIMIT = 10
 
 const restController = {
@@ -35,8 +36,12 @@ const restController = {
         const pages = Array.from({ length: totalPages }).map((_, i) => i + 1)
         const pre = curPage - 1 || 1
         const next = curPage + 1 > totalPages ? totalPages : curPage + 1
+        const user = helpers.getUser(req)
 
-        restaurants.rows.forEach(r => r.description = r.description.substring(0, 50))
+        restaurants.rows.forEach(r => {
+          r.description = r.description.substring(0, 50)
+          r.isFavorite = user.FavoriteRestaurants.map(r => r.id).includes(r.id)
+        })
 
         return res.render('restaurants', {
           restaurants: restaurants.rows,
@@ -48,18 +53,19 @@ const restController = {
   },
   getRestaurant: async (req, res) => {
     try {
+      const user = helpers.getUser(req)
       if (!req.params.id) return res.redirect('back')
-      const restaurant = await Restaurant.findByPk(req.params.id, {
+      let restaurant = await Restaurant.findByPk(req.params.id, {
         include: [
           Category,
           { model: Comment, include: [User] }
         ]
       })
       if (!restaurant) return res.redirect('back')
-      testConsoleLog('Before increment viewCounts', restaurant.toJSON().viewCounts)
       await restaurant.increment('viewCounts')
-      testConsoleLog('After increment viewCounts', restaurant.toJSON().viewCounts)
-      return res.render('restaurant', { restaurant: restaurant.toJSON() })
+      restaurant = restaurant.toJSON()
+      restaurant.isFavorite = user.FavoriteRestaurants.map(r => r.id).includes(restaurant.id)
+      return res.render('restaurant', { restaurant })
     } catch (error) {
       console.log(error)
     }
