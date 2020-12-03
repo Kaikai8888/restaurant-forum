@@ -100,7 +100,6 @@ const restController = {
     })
       .catch(error => manageError(error, req, res))
   }
-
 }
 
 module.exports = restController

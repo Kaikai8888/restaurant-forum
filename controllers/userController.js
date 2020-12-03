@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs')
-const { User, Comment, Restaurant, sequelize } = require('../models')
+const { User, Comment, Restaurant, Favorite, sequelize } = require('../models')
 const QueryTypes = sequelize.QueryTypes
 const { manageError, testConsoleLog } = require('../_helpers.js')
 const helpers = require('../_helpers.js')
@@ -102,6 +102,24 @@ let userController = {
     } catch (error) {
       manageError(error, req, res)
     }
+  },
+  addFavorite: (req, res) => {
+    console.log('in add favorite')
+    return Favorite.create({ RestaurantId: req.params.restaurantId, UserId: helpers.getUser(req).id })
+      .then(favorite => console.log(favorite))
+      .then(() => res.redirect('back'))
+      .catch(error => console.log(error))
+  },
+  removeFavorite: (req, res) => {
+    return Favorite.findOne({
+      where: {
+        RestaurantId: req.params.restaurantId,
+        UserId: helpers.getUser(req).id
+      }
+    })
+      .then(favorite => favorite.destroy())
+      .then(() => res.redirect('back'))
+      .catch(error => console.log(error))
   }
 }
 
