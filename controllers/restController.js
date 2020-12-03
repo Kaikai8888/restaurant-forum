@@ -58,7 +58,44 @@ const restController = {
         return res.render('restaurant', { restaurant: restaurant.toJSON() })
       })
       .catch(error => console.log(error))
+  },
+  getFeeds: (req, res) => {
+    Promise.all([
+      Restaurant.findAll({
+        include: Category,
+        order: [['createdAt', 'DESC']],
+        limit: 10,
+        raw: true,
+        nest: true
+      }),
+      Comment.findAll({
+        include: [Restaurant, User],
+        order: [['createdAt', 'DESC']],
+        limit: 10,
+        raw: true,
+        nest: true
+      })
+    ])
+      .then(results => res.render('feeds', {
+        restaurants: results[0],
+        comments: results[1]
+      }))
+      .catch(error => console.log(error))
+  },
+  getDashboard: (req, res) => {
+    Restaurant.findByPk(req.params.id, {
+      include: [
+        Category,
+        { model: Comment, include: User }
+      ]
+    }).then(restaurant => {
+      if (!restaurant) return res.redirect('back')
+      restaurant = restaurant.toJSON()
+      return res.render('dashboard', { restaurant, comments: restaurant.Comments.length })
+    })
+      .catch(error => console.log(error))
   }
+
 }
 
 module.exports = restController

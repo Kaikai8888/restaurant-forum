@@ -27,15 +27,33 @@ module.exports = (app, passport) => {
 
   app.get('/', authenticated, (req, res) => res.redirect('/restaurants'))
 
-  //user/restaurants
+  //restaurants
   app.get('/restaurants', authenticated, restController.getRestaurants)
+  app.get('/restaurants/feeds', authenticated, restController.getFeeds)
+
   app.get('/restaurants/:id', authenticated, restController.getRestaurant)
-  //user/comments
+  app.get('/restaurants/:id/dashboard', authenticated, restController.getDashboard)
+  //comments
   app.post('/comments', authenticated, commentController.postComment)
   //user
   app.get('/users/:id', authenticated, userController.getUser)
   app.get('/users/:id/edit', authenticated, userController.editUser)
   app.put('/users/:id', authenticated, upload.single('image'), userController.putUser)
+  //signup, signin, logout
+  app.get('/signup', userController.signUpPage)
+  app.post('/signup', userController.signUp, passport.authenticate('local', {
+    failureRedirect: '/signin',
+    failureMessage: true
+  }),
+    userController.signIn)
+  app.get('/signin', userController.signInPage)
+  app.post('/signin', passport.authenticate('local', {
+    failureRedirect: '/signin',
+    failureMessage: true
+  }),
+    userController.signIn)
+  app.get('/logout', userController.logout)
+
 
   //admin/restaurants
   app.get('/admin', authenticated, (req, res) => res.redirect('/admin/restaurants'))
@@ -58,19 +76,6 @@ module.exports = (app, passport) => {
   //admin/comments
   app.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
 
-  // user signup, signin, logout
-  app.get('/signup', userController.signUpPage)
-  app.post('/signup', userController.signUp, passport.authenticate('local', {
-    failureRedirect: '/signin',
-    failureMessage: true
-  }),
-    userController.signIn)
-  app.get('/signin', userController.signInPage)
-  app.post('/signin', passport.authenticate('local', {
-    failureRedirect: '/signin',
-    failureMessage: true
-  }),
-    userController.signIn)
-  app.get('/logout', userController.logout)
+
 
 }
