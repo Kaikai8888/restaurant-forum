@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs')
-const { User, Comment, Restaurant, Favorite, sequelize } = require('../models')
+const { User, Comment, Restaurant, Favorite, Like, sequelize } = require('../models')
 const QueryTypes = sequelize.QueryTypes
 const { manageError, testConsoleLog } = require('../_helpers.js')
 const helpers = require('../_helpers.js')
@@ -118,6 +118,29 @@ let userController = {
       .then(favorite => favorite.destroy())
       .then(() => res.redirect('back'))
       .catch(error => console.log(error))
+  },
+  like: async (req, res) => {
+    try {
+      const RestaurantId = Number(req.params.restaurantId)
+      if (!RestaurantId) return res.redirect('back')
+      const UserId = helpers.getUser(req).id
+      await Like.findOrCreate({ where: { RestaurantId, UserId } })
+      return res.redirect('back')
+    } catch (error) {
+      manageError(error, req, res)
+    }
+  },
+  unLike: async (req, res) => {
+    try {
+      const RestaurantId = Number(req.params.restaurantId)
+      if (!RestaurantId) return res.redirect('back')
+      const UserId = helpers.getUser(req).id
+      const like = await Like.findOne({ where: { RestaurantId, UserId } })
+      await like.destroy()
+      return res.redirect('back')
+    } catch (error) {
+      manageError(error, req, res)
+    }
   }
 }
 

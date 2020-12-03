@@ -7,6 +7,7 @@ select * from restaurants;
 select * from categories;
 select * from comments;
 select * from favorites;
+select * from likes;
 
 SELECT users.image, users.`name`, users.email, users.`id`, Count(comments.id) as "commentsCount", restaurants.`id`, restaurants.image FROM users JOIN comments ON users.`id` = comments.UserId JOIN restaurants ON restaurants.`id` = comments.RestaurantId GROUP BY restaurants.`id`;
 SELECT r.id, r.image 

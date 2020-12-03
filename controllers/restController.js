@@ -40,7 +40,8 @@ const restController = {
 
         restaurants.rows.forEach(r => {
           r.description = r.description.substring(0, 50)
-          r.isFavorite = user.FavoriteRestaurants.map(r => r.id).includes(r.id)
+          r.isFavorite = user.FavoriteRestaurants.map(fr => fr.id).includes(r.id)
+          r.like = user.LikeRestaurants.map(lr => lr.id).includes(r.id)
         })
 
         return res.render('restaurants', {
@@ -65,6 +66,7 @@ const restController = {
       await restaurant.increment('viewCounts')
       restaurant = restaurant.toJSON()
       restaurant.isFavorite = user.FavoriteRestaurants.map(r => r.id).includes(restaurant.id)
+      restaurant.like = user.LikeRestaurants.map(r => r.id).includes(restaurant.id)
       return res.render('restaurant', { restaurant })
     } catch (error) {
       console.log(error)
