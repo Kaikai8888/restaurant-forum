@@ -12,8 +12,20 @@ function manageError(error, req, res) {
   res.redirect('back')
 }
 
+function testConsoleLog(position, ...variables) {
+  console.log('\n---------------------------')
+  console.log('@@', position)
+  variables.forEach((v, i) => {
+    console.log(`@@${i + 1} :`)
+    console.log(v)
+    console.log('---------------------------')
+  })
+  console.log('---------------------------\n')
+}
+
 module.exports = {
   ensureAuthenticated,
   getUser,
-  manageError
+  manageError,
+  testConsoleLog
 };

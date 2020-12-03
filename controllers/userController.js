@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs')
 const { User, Comment, Restaurant, sequelize } = require('../models')
 const QueryTypes = sequelize.QueryTypes
-const { manageError } = require('../_helpers.js')
+const { manageError, testConsoleLog } = require('../_helpers.js')
 const helpers = require('../_helpers.js')
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
@@ -54,22 +54,14 @@ let userController = {
   },
   getUser: async (req, res) => {
     try {
-      const userProfile = await sequelize.query(
-        `SELECT u.*, Count(c.id) as "comments" 
-        FROM users AS u 
-        LEFT JOIN comments AS c ON u.id = c.UserId 
-        WHERE u.id = "${req.params.id}"`,
-        { type: QueryTypes.SELECT })
-      const restaurants = await sequelize.query(
-        `SELECT r.id, r.image 
-        FROM users AS u
-        JOIN comments As c ON u.id = c.UserId 
-        JOIN restaurants As r ON r.id = c.RestaurantId 
-        WHERE u.id = "${req.params.id}"
-        GROUP BY r.id`,
-        { type: QueryTypes.SELECT })
+      const UserId = Number(req.params.id)
+      if (!UserId) return res.redirect('back')
+      let userProfile = await User.findByPk(UserId, { include: { model: Comment, include: Restaurant } })
       if (!userProfile) return res.redirect('back')
-      return res.render('user', { userProfile: userProfile[0], restaurants, restCount: restaurants.length })
+      userProfile = userProfile.toJSON()
+      const uniqueRestaurantIds = Array.from(new Set(userProfile.Comments.map(comment => comment.RestaurantId)))
+      const restaurants = uniqueRestaurantIds.map(rid => userProfile.Comments.find(comment => comment.RestaurantId === rid).Restaurant)
+      return res.render('user', { userProfile, restaurants, commentsCount: userProfile.Comments.length, restaurantCount: restaurants.length })
     } catch (error) {
       manageError(error, req, res)
     }

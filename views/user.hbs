@@ -8,14 +8,14 @@
         <h5 class="card-title">{{userProfile.name}}</h5>
         <p class="card-text">{{userProfile.email}}</p>
         <p class="card-text">已評論 {{ restCount }} 間餐廳</p>
-        <p class="card-text">共 {{ userProfile.comments }} 則評論</p>
+        <p class="card-text">共 {{ commentsCount }} 則評論</p>
         <a href="/users/{{userProfile.id}}/edit" class="btn btn-primary">Edit</a>
       </div>
     </div>
   </div>
 </div>
 <div class="card mb-3">
-  <h5 class="card-header">{{ restCount }}間已評論餐廳</h5>
+  <h5 class="card-header">{{ restaurantCount }}間已評論餐廳</h5>
   <div class="card-body">
     {{#each restaurants}}
     <div class="m-3" style="display: inline-block">
