@@ -36,12 +36,11 @@ const restController = {
         const pages = Array.from({ length: totalPages }).map((_, i) => i + 1)
         const pre = curPage - 1 || 1
         const next = curPage + 1 > totalPages ? totalPages : curPage + 1
-        const user = helpers.getUser(req)
 
         restaurants.rows.forEach(r => {
           r.description = r.description.substring(0, 50)
-          r.isFavorite = user.FavoriteRestaurants.map(fr => fr.id).includes(r.id)
-          r.like = user.LikeRestaurants.map(lr => lr.id).includes(r.id)
+          r.isFavorite = req.user.FavoriteRestaurants.map(fr => fr.id).includes(r.id)
+          r.like = req.user.LikeRestaurants.map(lr => lr.id).includes(r.id)
         })
 
         return res.render('restaurants', {
@@ -54,20 +53,24 @@ const restController = {
   },
   getRestaurant: async (req, res) => {
     try {
-      const user = helpers.getUser(req)
       if (!req.params.id) return res.redirect('back')
       let restaurant = await Restaurant.findByPk(req.params.id, {
         include: [
           Category,
-          { model: Comment, include: [User] }
+          { model: Comment, include: [User] },
+          { model: User, as: 'FavoriteUsers' },
+          { model: User, as: 'LikeUsers' }
         ]
       })
       if (!restaurant) return res.redirect('back')
       await restaurant.increment('viewCounts')
+      const userId = helpers.getUser(req).id
       restaurant = restaurant.toJSON()
-      restaurant.isFavorite = user.FavoriteRestaurants.map(r => r.id).includes(restaurant.id)
-      restaurant.like = user.LikeRestaurants.map(r => r.id).includes(restaurant.id)
+      restaurant.isFavorite = restaurant.FavoriteUsers.map(u => u.id).includes(userId)
+      restaurant.like = restaurant.LikeUsers.map(u => u.id).includes(userId)
+
       return res.render('restaurant', { restaurant })
+
     } catch (error) {
       console.log(error)
     }

@@ -1,7 +1,8 @@
 create database forum;
 create database forum_test;
+create database forum_test_others;
 
-use forum;
+use forum_test;
 select * from users;
 select * from restaurants;
 select * from categories;
