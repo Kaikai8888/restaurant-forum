@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs')
-const { User, Comment, Restaurant, Favorite, Like, sequelize } = require('../models')
+const { User, Comment, Restaurant, Favorite, Like, Followship, sequelize } = require('../models')
 const QueryTypes = sequelize.QueryTypes
 const { manageError, testConsoleLog } = require('../_helpers.js')
 const helpers = require('../_helpers.js')
@@ -141,6 +141,19 @@ let userController = {
     } catch (error) {
       manageError(error, req, res)
     }
+  },
+  getTopUser: (req, res) => {
+    User.findAll({
+      include: { model: User, as: 'Followers' }
+    }).then(users => {
+      users = users.map(user => ({
+        ...user.dataValues,
+        FollowerCount: user.Followers.length,
+        isFollowed: req.user.Followings.some(f => f.id === user.id)
+      }))
+      users.sort((a, b) => b.FollowerCount - a.FollowerCount)
+      return res.render('topUser', { users })
+    }).catch(error => console.log(error))
   }
 }
 
