@@ -9,7 +9,9 @@
         <p class="card-text">{{userProfile.email}}</p>
         <p class="card-text">已評論 {{ restaurantCount }} 間餐廳</p>
         <p class="card-text">共 {{ commentsCount }} 則評論</p>
+        {{#ifCond user.id userProfile.id}}
         <a href="/users/{{userProfile.id}}/edit" class="btn btn-primary">Edit</a>
+        {{/ifCond}}
       </div>
     </div>
   </div>
