@@ -154,6 +154,24 @@ let userController = {
       users.sort((a, b) => b.FollowerCount - a.FollowerCount)
       return res.render('topUser', { users })
     }).catch(error => console.log(error))
+  },
+  addFollowing: (req, res) => {
+    const followingId = Number(req.params.userId)
+    if (!followingId) return res.redirect('back')
+    Followship.findOrCreate({ where: { followingId, followerId: req.user.id } })
+      .then(() => res.redirect('back'))
+      .catch(error => console.log(error))
+  },
+  removeFollowing: (req, res) => {
+    const followingId = Number(req.params.userId)
+    if (!followingId) return res.redirect('back')
+    Followship.findOne({ where: { followingId, followerId: req.user.id } })
+      .then(followship => {
+        if (!followship) return
+        followship.destroy()
+      })
+      .then(() => res.redirect('back'))
+      .catch(error => console.log(error))
   }
 }
 
