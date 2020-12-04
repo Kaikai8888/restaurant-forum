@@ -56,15 +56,15 @@ let userController = {
     try {
       const userProfile = await sequelize.query(
         `SELECT u.*, Count(c.id) as "comments" 
-        FROM users AS u 
-        LEFT JOIN comments AS c ON u.id = c.UserId 
+        FROM Users AS u 
+        LEFT JOIN Comments AS c ON u.id = c.UserId 
         WHERE u.id = "${req.params.id}"`,
         { type: QueryTypes.SELECT })
       const restaurants = await sequelize.query(
         `SELECT r.id, r.image 
-        FROM users AS u
-        JOIN comments As c ON u.id = c.UserId 
-        JOIN restaurants As r ON r.id = c.RestaurantId 
+        FROM Users AS u
+        JOIN Comments As c ON u.id = c.UserId 
+        JOIN Restaurants As r ON r.id = c.RestaurantId 
         WHERE u.id = "${req.params.id}"
         GROUP BY r.id`,
         { type: QueryTypes.SELECT })
