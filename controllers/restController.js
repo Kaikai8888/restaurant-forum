@@ -1,4 +1,4 @@
-const { Restaurant, Category, User, Comment } = require('../models')
+const { Restaurant, Category, User, Comment, Favorite } = require('../models')
 const { manageError, testConsoleLog } = require('../_helpers.js')
 const helpers = require('../_helpers.js')
 const PAGE_LIMIT = 10
@@ -110,6 +110,23 @@ const restController = {
       return res.render('dashboard', { restaurant, comments: restaurant.Comments.length })
     })
       .catch(error => manageError(error, req, res))
+  },
+  getTopRestaurants: async (req, res, next) => {
+    try {
+      let restaurants = await Restaurant.findAll({ include: { model: User, as: 'FavoriteUsers' } })
+      restaurants = restaurants.map(r => {
+        r = r.dataValues
+        return {
+          ...r,
+          isFavorite: r.FavoriteUsers.some(fu => fu.id === helpers.getUser(req).id),
+          FavoriteCount: r.FavoriteUsers.length || 0
+        }
+      })
+        .sort((a, b) => b.FavoriteCount - a.FavoriteCount).slice(0, 9)
+      return res.render('topRestaurants', { restaurants })
+    } catch (error) {
+      next(error)
+    }
   }
 }
 

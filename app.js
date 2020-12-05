@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const session = require('express-session')
 const flash = require('connect-flash')
 const methodOverride = require('method-override')
+const { manageError } = require('./_helpers.js')
 if (process.env.NOED_ENV !== 'production') {
   require('dotenv').config()
 }
@@ -41,5 +42,10 @@ app.listen(port, () => {
 })
 
 require('./routes')(app, passport)
+app.use((error, req, res, next) => {
+  console.log(error)
+  req.flash('error_messages', 'Error occurs, please check your request or try again later.')
+  return res.redirect('back')
+})
 
 module.exports = app
