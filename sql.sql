@@ -2,11 +2,13 @@ create database forum;
 create database forum_test;
 create database forum_test_others;
 
-use forum_test;
+use forum;
 select * from users;
-select * from restaurants;
+select * from restaurants where id = 501;
 select * from categories;
-select * from comments;
+select * from comments where RestaurantId = 501;
+select UserId, count(distinct(RestaurantId)) from comments group by UserId;
+select * from comments as c join restaurants as r on c.RestaurantId = r.id where c.UserId = 11 order by name;
 select * from favorites;
 select * from likes;
 select * from followships;

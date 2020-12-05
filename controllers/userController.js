@@ -56,7 +56,6 @@ let userController = {
     try {
       const UserId = Number(req.params.id)
       if (!UserId) return res.redirect('back')
-      console.log('@@user id', UserId)
       let profile = await User.findByPk(UserId, {
         include: [
           { model: Comment, include: Restaurant },
@@ -69,8 +68,9 @@ let userController = {
       profile = profile.toJSON()
       //get unique commented restaurants
       const uniqueRestaurantIds = Array.from(new Set(profile.Comments.map(comment => comment.RestaurantId)))
+      console.log('@@', uniqueRestaurantIds)
       const commentedRestaurants = uniqueRestaurantIds.map(rid => profile.Comments.find(comment => comment.RestaurantId === rid).Restaurant)
-
+      console.log('@@commentedRestaurants', commentedRestaurants)
       profile = {
         ...profile,
         commentedRestaurants,
@@ -83,7 +83,7 @@ let userController = {
       }
       delete profile.Restaurants
       delete profile.Comments
-      console.log('@@1', profile)
+
       return res.render('user', { profile })
     } catch (error) {
       next(error)
