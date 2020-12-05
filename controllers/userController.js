@@ -78,7 +78,8 @@ let userController = {
         favoriteCount: profile.FavoriteRestaurants.length,
         followingsCount: profile.Followings.length,
         followersCount: profile.Followers.length,
-        commentsCount: profile.Comments.length
+        commentsCount: profile.Comments.length,
+        isFollowed: req.user.Followings.some(f => f.id === profile.id)
       }
       delete profile.Restaurants
       delete profile.Comments
