@@ -52,18 +52,40 @@ let userController = {
     req.flash('success_message', '成功登出!')
     res.redirect('/signin')
   },
-  getUser: async (req, res) => {
+  getUser: async (req, res, next) => {
     try {
       const UserId = Number(req.params.id)
       if (!UserId) return res.redirect('back')
-      let userProfile = await User.findByPk(UserId, { include: { model: Comment, include: Restaurant } })
-      if (!userProfile) return res.redirect('back')
-      userProfile = userProfile.toJSON()
-      const uniqueRestaurantIds = Array.from(new Set(userProfile.Comments.map(comment => comment.RestaurantId)))
-      const restaurants = uniqueRestaurantIds.map(rid => userProfile.Comments.find(comment => comment.RestaurantId === rid).Restaurant)
-      return res.render('user', { userProfile, restaurants, commentsCount: userProfile.Comments.length, restaurantCount: restaurants.length })
+      console.log('@@user id', UserId)
+      let profile = await User.findByPk(UserId, {
+        include: [
+          { model: Comment, include: Restaurant },
+          { model: Restaurant, as: 'FavoriteRestaurants' },
+          { model: User, as: 'Followings' },
+          { model: User, as: 'Followers' }
+        ]
+      })
+      if (!profile) return res.redirect('back')
+      profile = profile.toJSON()
+      //get unique commented restaurants
+      const uniqueRestaurantIds = Array.from(new Set(profile.Comments.map(comment => comment.RestaurantId)))
+      const commentedRestaurants = uniqueRestaurantIds.map(rid => profile.Comments.find(comment => comment.RestaurantId === rid).Restaurant)
+
+      profile = {
+        ...profile,
+        commentedRestaurants,
+        commentedRestCount: commentedRestaurants.length,
+        favoriteCount: profile.FavoriteRestaurants.length,
+        followingsCount: profile.Followings.length,
+        followersCount: profile.Followers.length,
+        commentsCount: profile.Comments.length
+      }
+      delete profile.Restaurants
+      delete profile.Comments
+      console.log('@@1', profile)
+      return res.render('user', { profile })
     } catch (error) {
-      manageError(error, req, res)
+      next(error)
     }
   },
   editUser: async (req, res) => {
@@ -157,7 +179,7 @@ let userController = {
   },
   addFollowing: (req, res) => {
     const followingId = Number(req.params.userId)
-    if (!followingId) return res.redirect('back')
+    if (!followingId || followingId === req.user.id) return res.redirect('back')
     Followship.findOrCreate({ where: { followingId, followerId: req.user.id } })
       .then(() => res.redirect('back'))
       .catch(error => console.log(error))
