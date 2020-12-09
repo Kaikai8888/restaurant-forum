@@ -159,6 +159,7 @@ let userController = {
       if (!RestaurantId) return res.redirect('back')
       const UserId = helpers.getUser(req).id
       const like = await Like.findOne({ where: { RestaurantId, UserId } })
+      if (!like) return res.redirect('back')
       await like.destroy()
       return res.redirect('back')
     } catch (error) {
