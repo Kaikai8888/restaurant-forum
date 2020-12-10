@@ -6,14 +6,15 @@ const categoryController = {
   getCategories: (req, res) => {
     categoryService.getCategories(req, res, (data) => res.render('admin/categories', data))
   },
-  postCategory: (req, res) => {
-    const name = req.body.name || ''
-    if (name.trim()) {
-      return Category.create({ name: name.trim() })
-        .then(() => res.redirect('/admin/categories'))
-    }
-    req.flash('error_messages', 'name didn\'t exist')
-    return res.redirect('/admin/categories')
+  postCategory: (req, res, next) => {
+    categoryService.postCategory(req, res, (data) => {
+      if (data.status === 'success') {
+        req.flash('success', data.message)
+        return res.redirect('/admin/categories')
+      }
+      req.flash('error_messages', data.message)
+      return res.redirect('back')
+    })
   },
   editCategory: (req, res) => {
     if (req.params.id) {
