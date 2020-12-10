@@ -7,7 +7,6 @@ const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const adminController = {
   getRestaurants: (req, res) => {
     adminService.getRestaurants(req, res, (data) => {
-      console.log('@@get restaurant')
       if (data.status === 'error') return next(data)
       res.render('admin/restaurants', data)
     })
