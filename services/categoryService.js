@@ -28,8 +28,19 @@ const categoryService = {
           .then(() => callback({ status: 'success', message: 'Successfully update category.' }))
       })
       .catch(error => callback({ status: 'error', message: 'Error Occurs when manipulating database.' }))
-
   },
+  deleteCategory: (req, res, callback) => {
+    return Category.findByPk(req.params.id)
+      .then(category => {
+        if (!category) return callback({ status: 'error', message: 'Category id doesn\'t exist.' })
+        return category.destroy()
+          .then(() => { callback({ status: 'success', message: 'Successfully delete category.' }) })
+      })
+      .catch(error => {
+        console.log(error)
+        callback({ status: 'error', message: 'Error Occurs when manipulating database.' })
+      })
+  }
 }
 
 module.exports = categoryService
