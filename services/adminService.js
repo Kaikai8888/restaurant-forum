@@ -49,6 +49,40 @@ const adminService = {
     }
 
   },
+  putRestaurant: (req, res, callback) => {
+    if (!req.body.name) {
+      return callback({ status: 'error', message: 'Name field is required.' })
+    }
+    const { file } = req
+    const { name, tel, address, opening_hours, description, CategoryId } = req.body
+    if (file) {
+      imgur.setClientID(IMGUR_CLIENT_ID)
+      imgur.upload(file.path, (err, img) => {
+        if (err) return callback({ status: 'error', message: 'Error occurs when uploading image to imgur.' })
+        return Restaurant.findByPk(req.params.id)
+          .then(restaurant => {
+            if (!restaurant) return callback({ status: 'error', message: 'Restaurant id not exist.' })
+            restaurant.update({
+              name, tel, address, opening_hours, description, CategoryId,
+              image: file ? img.data.link : null
+            })
+              .then(() => callback({ status: 'success', message: 'Successfully edit restaurant.' }))
+          })
+          .catch(error => callback({ status: 'error', message: 'Error occurs when updating data in database.', error }))
+      })
+    } else {
+      return Restaurant.findByPk(req.params.id)
+        .then(restaurant => {
+          if (!restaurant) return callback({ status: 'error', message: 'Restaurant id doesn\'t exist.' })
+          return restaurant.update({
+            name, tel, address, opening_hours, description, CategoryId,
+            image: restaurant.image
+          })
+            .then((() => callback({ status: 'success', message: 'Successfully edit restaurant.' })))
+        })
+        .catch(error => callback({ status: 'error', message: 'Error occurs when updating data in database.', error }))
+    }
+  },
   deleteRestaurant: (req, res, callback) => {
     return Restaurant.findByPk(req.params.id)
       .then(restaurant => {

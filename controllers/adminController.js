@@ -39,39 +39,13 @@ const adminController = {
 
   },
   putRestaurant: (req, res) => {
-    if (!req.body.name) {
-      req.flash('error_messages', '請填寫餐廳名稱')
-      return res.redirect('back')
-    }
-    const { file } = req
-    const { name, tel, address, opening_hours, description, CategoryId } = req.body
-    if (file) {
-      imgur.setClientID(IMGUR_CLIENT_ID)
-      imgur.upload(file.path, (err, img) => {
-        if (err) return console.log('Error:', err)
-        return Restaurant.findByPk(req.params.id)
-          .then(restaurant => restaurant.update({
-            name, tel, address, opening_hours, description, CategoryId,
-            image: file ? img.data.link : null
-          }))
-          .then(() => {
-            req.flash('success_messages', '已成功編輯餐廳資訊')
-            res.redirect('/admin/restaurants')
-          })
-          .catch(error => console.log(error))
-      })
-    } else {
-      return Restaurant.findByPk(req.params.id)
-        .then(restaurant => restaurant.update({
-          name, tel, address, opening_hours, description, CategoryId,
-          image: restaurant.image
-        }))
-        .then((restaurant => {
-          req.flash('success_messages', '已成功更新餐廳資訊')
-          res.redirect('/admin/restaurants')
-        }))
-        .catch(error => console.log(error))
-    }
+    adminService.putRestaurant(req, res, data => {
+      if (data.status === 'success') {
+        req.flash('success_messages', data.message)
+        return res.redirect('/admin/restaurants')
+      }
+      next(data)
+    })
   },
   deleteRestaurant: (req, res, next) => {
     return adminService.deleteRestaurant(req, res, (data) => {

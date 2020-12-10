@@ -6,6 +6,7 @@ const adminController = {
   },
   getRestaurant: (req, res) => { adminService.getRestaurant(req, res, data => res.json(data)) },
   postRestaurant: (req, res) => { adminService.postRestaurant(req, res, data => res.json(data)) },
+  putRestaurant: (req, res) => { adminService.putRestaurant(req, res, data => res.json(data)) },
   deleteRestaurant: (req, res) => {
     return adminService.deleteRestaurant(req, res, (data) => {
       res.json(data)
