@@ -31,18 +31,14 @@ const categoryController = {
     }
   },
   putCategory: (req, res) => {
-    const name = req.body.name || ''
-    if (!name.trim()) {
-      req.flash('error_messages', 'name didn\'t exit')
+    categoryService.putCategory(req, res, (data) => {
+      if (data.status === 'success') {
+        req.flash('success', data.message)
+        return res.redirect('/admin/categories')
+      }
+      req.flash('error_messages', data.message)
       return res.redirect('back')
-    }
-    return Category.findByPk(req.params.id)
-      .then(category => {
-        if (!category) return
-        return category.update({ name: req.body.name })
-      })
-      .then(() => res.redirect('/admin/categories'))
-      .catch(error => console.log(error))
+    })
   },
   deleteCategory: (req, res) => {
     return Category.findByPk(req.params.id)
