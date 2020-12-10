@@ -1,10 +1,9 @@
-const { Restaurant, Category } = require('../../models')
+const adminService = require('../../services/adminService.js')
 
-const restController = {
+const adminController = {
   getRestaurants: (req, res) => {
-    return Restaurant.findAll({ include: [Category], raw: true, nest: true })
-      .then(restaurants => res.json({ restaurants }))
+    return adminService.getRestaurants(req, res, (data) => res.json(data))
   },
 }
 
-module.exports = restController
+module.exports = adminController

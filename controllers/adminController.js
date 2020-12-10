@@ -1,12 +1,12 @@
 const { Restaurant, User, Category, Comment } = require('../models')
+const adminService = require('../services/adminService.js')
 const fs = require('fs')
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
-const restController = {
+const adminController = {
   getRestaurants: (req, res) => {
-    return Restaurant.findAll({ include: [Category], raw: true, nest: true })
-      .then(restaurants => res.render('admin/restaurants', { restaurants }))
+    return adminService.getRestaurants(req, res, (data) => res.render('admin/restaurants', data))
   },
   getRestaurant: (req, res) => {
     return Restaurant.findByPk(req.params.id, { include: [Category] })
@@ -125,4 +125,4 @@ const restController = {
 
 }
 
-module.exports = restController
+module.exports = adminController
