@@ -41,11 +41,6 @@ app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
 
-require('./routes')(app, passport)
-app.use((error, req, res, next) => {
-  console.log(error)
-  req.flash('error_messages', 'Error occurs, please check your request or try again later.')
-  return res.redirect('back')
-})
+require('./routes')(app)
 
 module.exports = app
