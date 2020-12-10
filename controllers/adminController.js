@@ -9,12 +9,9 @@ const adminController = {
     return adminService.getRestaurants(req, res, (data) => res.render('admin/restaurants', data))
   },
   getRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, { include: [Category] })
-      .then(restaurant => {
-        if (!restaurant) return res.redirect('back')
-        return res.render('admin/restaurant', { restaurant: restaurant.toJSON() })
-      })
-  },
+    adminService.getRestaurant(req, res, data => res.render('admin/restaurant', data))
+  }
+  ,
   createRestaurant: (req, res) => {
     return Category.findAll({ raw: true }).then(categories => res.render('admin/create', { categories }))
   },
