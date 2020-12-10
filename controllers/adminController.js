@@ -16,45 +16,18 @@ const adminController = {
       if (data.status === 'error') return next(data)
       res.render('admin/restaurant', data)
     })
-  }
-  ,
+  },
   createRestaurant: (req, res) => {
     return Category.findAll({ raw: true }).then(categories => res.render('admin/create', { categories }))
   },
-  postRestaurant: (req, res) => {
-    if (!req.body.name) {
-      req.flash('error_messages', '請填寫餐廳名稱')
-      return res.redirect('back')
-    }
-    const { file } = req
-    const { name, tel, address, opening_hours, description, CategoryId } = req.body
-    if (file) {
-      imgur.setClientID(IMGUR_CLIENT_ID)
-      imgur.upload(file.path, (err, img) => {
-        if (err) return console.log('Error:', err)
-        return Restaurant.create({
-          name, tel, address, opening_hours, description, CategoryId,
-          image: file ? img.data.link : null
-        })
-          .then(() => {
-            req.flash('success_messages', '已成功新增餐廳')
-            res.redirect('/admin/restaurants')
-          })
-          .catch(error => console.log(error))
-      })
-    } else {
-      return Restaurant.create({
-        name, tel, address, opening_hours, description, CategoryId,
-        image: null
-      })
-        .then(() => {
-          req.flash('success_messages', '已成功新增餐廳')
-          res.redirect('/admin/restaurants')
-        })
-        .catch(error => console.log(error))
-    }
-
-
+  postRestaurant: (req, res, next) => {
+    adminService.postRestaurant(req, res, data => {
+      if (data.status === 'success') {
+        req.flash('success_messages', data.message)
+        return res.redirect('/admin/restaurants')
+      }
+      next(data)
+    })
   },
   editRestaurant: (req, res) => {
     return Promise.all([

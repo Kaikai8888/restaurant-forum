@@ -1,4 +1,6 @@
 const { Restaurant, User, Category, Comment } = require('../models')
+const imgur = require('imgur-node-api')
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
 const adminService = {
   getRestaurants: (req, res, callback) => {
@@ -15,6 +17,37 @@ const adminService = {
         return callback({ restaurant: restaurant.toJSON() })
       })
       .catch(error => callback({ status: 'error', message: 'Error occurs on database side', error }))
+  },
+  postRestaurant: (req, res, callback) => {
+    if (!req.body.name) {
+      return callback({ status: 'error', message: 'Name field is required.' })
+    }
+    const { file } = req
+    const { name, tel, address, opening_hours, description, CategoryId } = req.body
+    if (file) {
+      imgur.setClientID(IMGUR_CLIENT_ID)
+      imgur.upload(file.path, (err, img) => {
+        if (err) return callback({ status: 'error', message: 'Error occurs when uploading image to imgur.' })
+        return Restaurant.create({
+          name, tel, address, opening_hours, description, CategoryId,
+          image: file ? img.data.link : null
+        })
+          .then(() => {
+            return callback({ status: 'success', message: 'Successfully create new restaurant.' })
+          })
+          .catch(error => callback({ status: 'error', message: 'Error occurs when creating new restaurant in database.', error }))
+      })
+    } else {
+      return Restaurant.create({
+        name, tel, address, opening_hours, description, CategoryId,
+        image: null
+      })
+        .then(() => {
+          return callback({ status: 'success', message: 'Successfully create new restaurant.' })
+        })
+        .catch(error => callback({ status: 'error', message: 'Error occurs when creating new restaurant in database.', error }))
+    }
+
   },
   deleteRestaurant: (req, res, callback) => {
     return Restaurant.findByPk(req.params.id)
